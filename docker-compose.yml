@@ -48,8 +48,8 @@ services:
         - CMD-SHELL
         - >
           tags=$$(curl -fs http://localhost:11434/api/tags) &&
-          echo "$$tags" | grep -Eq "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}(:[^\"]+)?\"" &&
-          echo "$$tags" | grep -Eq "\"name\":\"$${OLLAMA_CHAT_MODEL}(:[^\"]+)?\""
+          ( echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}\"" || echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}:\"" ) &&
+          ( echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_CHAT_MODEL}\"" || echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_CHAT_MODEL}:\"" )
       interval: 30s
       timeout: 10s
       retries: 5

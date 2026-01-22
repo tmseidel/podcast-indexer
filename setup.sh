@@ -17,7 +17,8 @@ if ! command -v docker-compose &> /dev/null; then
     exit 1
 fi
 
-docker volume create podcast-indexer_ollama-data 2>/dev/null
+OLLAMA_VOLUME_NAME=podcast-indexer_ollama-data
+docker volume create "${OLLAMA_VOLUME_NAME}" 2>/dev/null
 
 echo "Pulling required Ollama models..."
 echo "This may take a while depending on your internet connection..."
@@ -27,7 +28,7 @@ pull_ollama_model() {
     local description=$1
     local model=$2
     echo "Pulling ${description}..."
-    docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull "${model}" || exit 1
+    docker run --rm -v "${OLLAMA_VOLUME_NAME}":/root/.ollama ollama/ollama:latest ollama pull "${model}" || exit 1
     echo ""
 }
 
