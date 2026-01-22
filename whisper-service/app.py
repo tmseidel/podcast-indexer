@@ -16,7 +16,7 @@ def health():
 
 @app.route('/', methods=['GET'])
 def root():
-    return jsonify({"status": "ok"})
+    return health()
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
