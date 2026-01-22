@@ -48,8 +48,8 @@ services:
         - CMD-SHELL
         - >
           tags=$$(curl -fs http://localhost:11434/api/tags) &&
-          ( echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}\"" || echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}:\"" ) &&
-          ( echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_CHAT_MODEL}\"" || echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_CHAT_MODEL}:\"" )
+          echo "$$tags" | grep -Eq "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}(:[^\"]+)?\"" &&
+          echo "$$tags" | grep -Eq "\"name\":\"$${OLLAMA_CHAT_MODEL}(:[^\"]+)?\""
       interval: 30s
       timeout: 10s
       retries: 5
@@ -85,8 +85,8 @@ services:
       REDIS_PORT: 6379
       WHISPER_SERVICE_URL: http://whisper-service:8000
       OLLAMA_SERVICE_URL: http://ollama:11434
-      OLLAMA_EMBEDDING_MODEL: nomic-embed-text
-      OLLAMA_CHAT_MODEL: llama2
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-llama2}
       AUDIO_STORAGE_PATH: /app/data/audio
       MAX_MINUTES_BEFORE_SPLIT: 60
       CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost
