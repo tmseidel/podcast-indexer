@@ -1,13 +1,12 @@
 package com.podcast.indexer.service;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.podcast.indexer.config.PodcastConfig;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Map;
@@ -17,8 +16,8 @@ import java.util.Map;
 @Slf4j
 public class OllamaService {
     
-    @Qualifier("ollamaWebClient")
-    private final WebClient ollamaWebClient;
+    @Qualifier("ollamaRestClient")
+    private final RestClient ollamaRestClient;
     private final PodcastConfig config;
     
     public List<Double> generateEmbedding(String text) {
@@ -27,12 +26,11 @@ public class OllamaService {
             request.setModel(config.getOllama().getEmbedding().getModel());
             request.setPrompt(text);
             
-            EmbeddingResponse response = ollamaWebClient.post()
+            EmbeddingResponse response = ollamaRestClient.post()
                     .uri("/api/embeddings")
-                    .bodyValue(request)
+                    .body(request)
                     .retrieve()
-                    .bodyToMono(EmbeddingResponse.class)
-                    .block();
+                    .body(EmbeddingResponse.class);
             
             return response != null ? response.getEmbedding() : null;
         } catch (Exception e) {
@@ -48,12 +46,11 @@ public class OllamaService {
             request.setPrompt(buildPrompt(question, context));
             request.setStream(false);
             
-            ChatResponse response = ollamaWebClient.post()
+            ChatResponse response = ollamaRestClient.post()
                     .uri("/api/generate")
-                    .bodyValue(request)
+                    .body(request)
                     .retrieve()
-                    .bodyToMono(ChatResponse.class)
-                    .block();
+                    .body(ChatResponse.class);
             
             return response != null ? response.getResponse() : null;
         } catch (Exception e) {

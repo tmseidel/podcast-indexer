@@ -1,6 +1,5 @@
 package com.podcast.indexer.service;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.podcast.indexer.model.Episode;
 import com.podcast.indexer.model.ProcessingStatus;
 import com.podcast.indexer.model.TranscriptSegment;
@@ -15,8 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,8 +25,8 @@ import java.util.List;
 @Slf4j
 public class WhisperService {
     
-    @Qualifier("whisperWebClient")
-    private final WebClient whisperWebClient;
+    @Qualifier("whisperRestClient")
+    private final RestClient whisperRestClient;
     private final EpisodeRepository episodeRepository;
     private final TranscriptSegmentRepository transcriptSegmentRepository;
     private final JobQueueService jobQueueService;
@@ -99,13 +97,12 @@ public class WhisperService {
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("file", new FileSystemResource(new File(audioFilePath)));
         
-        return whisperWebClient.post()
+        return whisperRestClient.post()
                 .uri("/transcribe")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(BodyInserters.fromMultipartData(builder.build()))
+                .body(builder.build())
                 .retrieve()
-                .bodyToMono(WhisperResponse.class)
-                .block();
+                .body(WhisperResponse.class);
     }
     
     @Data
