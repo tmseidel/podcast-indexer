@@ -23,17 +23,19 @@ echo "Pulling required Ollama models..."
 echo "This may take a while depending on your internet connection..."
 echo ""
 
+pull_ollama_model() {
+    local description=$1
+    local model=$2
+    echo "Pulling ${description}..."
+    docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull "${model}" || exit 1
+    echo ""
+}
+
 OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
 OLLAMA_CHAT_MODEL=${OLLAMA_CHAT_MODEL:-llama2}
 
-echo "Pulling embedding model (${OLLAMA_EMBEDDING_MODEL})..."
-docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull "${OLLAMA_EMBEDDING_MODEL}" || exit 1
-
-echo ""
-echo "Pulling chat model (${OLLAMA_CHAT_MODEL})..."
-docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull "${OLLAMA_CHAT_MODEL}" || exit 1
-
-echo ""
+pull_ollama_model "embedding model (${OLLAMA_EMBEDDING_MODEL})" "${OLLAMA_EMBEDDING_MODEL}"
+pull_ollama_model "chat model (${OLLAMA_CHAT_MODEL})" "${OLLAMA_CHAT_MODEL}"
 echo "Starting all services..."
 docker-compose up -d
 

@@ -39,16 +39,17 @@ services:
     volumes:
       - ollama-data:/root/.ollama
     environment:
-      OLLAMA_EMBEDDING_MODEL: nomic-embed-text
-      OLLAMA_CHAT_MODEL: llama2
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-llama2}
     ports:
       - "11434:11434"
     healthcheck:
       test:
         - CMD-SHELL
         - >
-          curl -fs http://localhost:11434/api/tags | grep -q "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}\"" &&
-          curl -fs http://localhost:11434/api/tags | grep -q "\"name\":\"$${OLLAMA_CHAT_MODEL}\""
+          tags=$$(curl -fs http://localhost:11434/api/tags) &&
+          ( echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}\"" || echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}:\"" ) &&
+          ( echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_CHAT_MODEL}\"" || echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_CHAT_MODEL}:\"" )
       interval: 30s
       timeout: 10s
       retries: 5
