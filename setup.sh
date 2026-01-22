@@ -17,7 +17,7 @@ if ! command -v docker-compose &> /dev/null; then
     exit 1
 fi
 
-OLLAMA_VOLUME_NAME=podcast-indexer_ollama-data
+OLLAMA_VOLUME_NAME=${OLLAMA_VOLUME_NAME:-podcast-indexer_ollama-data}
 docker volume create "${OLLAMA_VOLUME_NAME}" 2>/dev/null
 
 echo "Pulling required Ollama models..."

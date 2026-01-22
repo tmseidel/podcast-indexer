@@ -47,9 +47,9 @@ services:
       test:
         - CMD-SHELL
         - >
-          tags=$$(curl -fs http://localhost:11434/api/tags) &&
-          ( echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}\"" || echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}:\"" ) &&
-          ( echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_CHAT_MODEL}\"" || echo "$$tags" | grep -Fq "\"name\":\"$${OLLAMA_CHAT_MODEL}:\"" )
+          models=$$(ollama list | awk 'NR>1{print $$1}' | sed 's/:.*//') &&
+          echo "$$models" | grep -Fxq "$$OLLAMA_EMBEDDING_MODEL" &&
+          echo "$$models" | grep -Fxq "$$OLLAMA_CHAT_MODEL"
       interval: 30s
       timeout: 10s
       retries: 5
@@ -126,5 +126,5 @@ services:
 volumes:
   postgres-data:
   ollama-data:
-    name: podcast-indexer_ollama-data
+    name: ${OLLAMA_VOLUME_NAME:-podcast-indexer_ollama-data}
   audio-data:
