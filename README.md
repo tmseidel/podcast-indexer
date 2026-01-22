@@ -64,14 +64,17 @@ This will start all services:
 
 ### 3. Pull Required Ollama Models
 
-After the containers are running, pull the required models:
+Pull the required models before starting services (or immediately after; the backend waits for them):
 
 ```bash
+# Ensure the ollama-data volume exists so model pulls persist
+docker volume create podcast-indexer_ollama-data
+
 # Pull embedding model
-docker exec podcast-ollama ollama pull nomic-embed-text
+docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull nomic-embed-text
 
 # Pull chat model (you can use different models)
-docker exec podcast-ollama ollama pull llama2
+docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull llama2
 ```
 
 Alternative chat models you can use:
@@ -152,7 +155,8 @@ To use a different chat model:
 
 1. Pull the model:
 ```bash
-docker exec podcast-ollama ollama pull mistral
+docker volume create podcast-indexer_ollama-data
+docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull mistral
 ```
 
 2. Update `docker-compose.yml`:
@@ -242,7 +246,7 @@ npm run build
 - Check logs: `docker logs podcast-whisper`
 
 ### Ollama Models Not Found
-- Pull models manually: `docker exec podcast-ollama ollama pull nomic-embed-text`
+- Pull models manually: `docker volume create podcast-indexer_ollama-data && docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull nomic-embed-text`
 - Check available models: `docker exec podcast-ollama ollama list`
 
 ### Backend Fails to Connect to Services

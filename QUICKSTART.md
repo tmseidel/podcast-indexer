@@ -56,7 +56,8 @@ docker-compose restart backend
 docker-compose ps
 
 # Pull a different chat model
-docker exec podcast-ollama ollama pull mistral
+docker volume create podcast-indexer_ollama-data
+docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull mistral
 ```
 
 ## Troubleshooting
@@ -82,7 +83,7 @@ docker logs podcast-backend -f
 
 **Problem**: Out of memory
 - Increase Docker memory limit in Docker Desktop
-- Use smaller Ollama model: `docker exec podcast-ollama ollama pull phi3`
+- Use smaller Ollama model: `docker volume create podcast-indexer_ollama-data && docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull phi3`
 
 ## Tips
 

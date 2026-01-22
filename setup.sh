@@ -17,6 +17,20 @@ if ! command -v docker-compose &> /dev/null; then
     exit 1
 fi
 
+docker volume create podcast-indexer_ollama-data >/dev/null
+
+echo "Pulling required Ollama models..."
+echo "This may take a while depending on your internet connection..."
+echo ""
+
+echo "Pulling embedding model (nomic-embed-text)..."
+docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull nomic-embed-text
+
+echo ""
+echo "Pulling chat model (llama2)..."
+docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull llama2
+
+echo ""
 echo "Starting all services..."
 docker-compose up -d
 
@@ -24,19 +38,6 @@ echo ""
 echo "Waiting for services to be healthy..."
 sleep 30
 
-echo ""
-echo "Pulling required Ollama models..."
-echo "This may take a while depending on your internet connection..."
-echo ""
-
-echo "Pulling embedding model (nomic-embed-text)..."
-docker exec podcast-ollama ollama pull nomic-embed-text
-
-echo ""
-echo "Pulling chat model (llama2)..."
-docker exec podcast-ollama ollama pull llama2
-
-echo ""
 echo "======================================"
 echo "Setup complete!"
 echo "======================================"
