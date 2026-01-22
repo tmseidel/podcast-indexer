@@ -38,7 +38,17 @@ git clone https://github.com/tmseidel/podcast-indexer.git
 cd podcast-indexer
 ```
 
-### 2. Start the Stack
+### 2. Start the Stack (Automated)
+
+Run the setup script to automatically start all services and pull required models:
+
+```bash
+./setup.sh
+```
+
+Or manually:
+
+### 2. Start the Stack (Manual)
 
 ```bash
 docker-compose up -d
