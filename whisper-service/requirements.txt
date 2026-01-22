@@ -1,0 +1,2 @@
+flask==3.0.0
+openai-whisper==20231117
