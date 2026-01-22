@@ -47,8 +47,8 @@ services:
       test:
         - CMD-SHELL
         - >
-          curl -fs http://localhost:11434/api/tags | grep -q "$$OLLAMA_EMBEDDING_MODEL" &&
-          curl -fs http://localhost:11434/api/tags | grep -q "$$OLLAMA_CHAT_MODEL"
+          curl -fs http://localhost:11434/api/tags | grep -q "\"name\":\"$${OLLAMA_EMBEDDING_MODEL}\"" &&
+          curl -fs http://localhost:11434/api/tags | grep -q "\"name\":\"$${OLLAMA_CHAT_MODEL}\""
       interval: 30s
       timeout: 10s
       retries: 5
