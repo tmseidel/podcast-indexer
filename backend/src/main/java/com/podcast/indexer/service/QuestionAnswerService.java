@@ -5,6 +5,7 @@ import com.podcast.indexer.dto.AnswerResponse;
 import com.podcast.indexer.model.EmbeddingChunk;
 import com.podcast.indexer.model.Episode;
 import com.podcast.indexer.repository.EmbeddingChunkRepository;
+import com.podcast.indexer.util.EmbeddingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class QuestionAnswerService {
     public AnswerResponse answerQuestion(Long podcastId, String question) {
         // Generate embedding for the question
         List<Double> questionEmbedding = ollamaService.generateEmbedding(question);
-        String embeddingStr = convertEmbeddingToString(questionEmbedding);
+        String embeddingStr = EmbeddingUtils.convertEmbeddingToString(questionEmbedding);
         
         // Retrieve top-k similar chunks
         int topK = config.getVector().getSearch().getTopK();
@@ -75,16 +76,6 @@ public class QuestionAnswerService {
                 .answer(answer)
                 .citations(citations)
                 .build();
-    }
-    
-    private String convertEmbeddingToString(List<Double> embedding) {
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < embedding.size(); i++) {
-            if (i > 0) sb.append(",");
-            sb.append(embedding.get(i));
-        }
-        sb.append("]");
-        return sb.toString();
     }
     
     private String formatTimestamp(long ms) {

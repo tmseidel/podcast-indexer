@@ -98,7 +98,6 @@ public class WhisperService {
     private WhisperResponse callWhisperService(String audioFilePath) {
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("file", new FileSystemResource(new File(audioFilePath)));
-        builder.part("response_format", "verbose_json");
         
         return whisperWebClient.post()
                 .uri("/transcribe")

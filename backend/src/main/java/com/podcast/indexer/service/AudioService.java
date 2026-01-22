@@ -140,6 +140,9 @@ public class AudioService {
         for (int startTime = 0; startTime < totalDuration; startTime += segmentDurationSeconds) {
             String outputPath = parentDir.resolve(baseName + "_part" + partIndex + getFileExtension(audioPath)).toString();
             
+            // Note: Using -c copy for fast splitting. This may cause slight inaccuracies
+            // at split boundaries (especially with VBR files). For precise splits, 
+            // use re-encoding: "-c:a aac -b:a 128k" instead of "-c copy"
             ProcessBuilder pb = new ProcessBuilder(
                     "ffmpeg", "-i", audioPath,
                     "-ss", String.valueOf(startTime),

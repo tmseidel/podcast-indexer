@@ -7,6 +7,7 @@ import com.podcast.indexer.model.TranscriptSegment;
 import com.podcast.indexer.repository.EmbeddingChunkRepository;
 import com.podcast.indexer.repository.EpisodeRepository;
 import com.podcast.indexer.repository.TranscriptSegmentRepository;
+import com.podcast.indexer.util.EmbeddingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -70,7 +71,7 @@ public class IndexingService {
                 
                 // Generate embedding
                 List<Double> embedding = ollamaService.generateEmbedding(text);
-                String embeddingStr = convertEmbeddingToString(embedding);
+                String embeddingStr = EmbeddingUtils.convertEmbeddingToString(embedding);
                 
                 EmbeddingChunk chunk = EmbeddingChunk.builder()
                         .episode(episode)
@@ -95,19 +96,5 @@ public class IndexingService {
             episode.setStatus(ProcessingStatus.FAILED);
             episodeRepository.save(episode);
         }
-    }
-    
-    private String convertEmbeddingToString(List<Double> embedding) {
-        if (embedding == null || embedding.isEmpty()) {
-            throw new IllegalArgumentException("Embedding cannot be null or empty");
-        }
-        
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < embedding.size(); i++) {
-            if (i > 0) sb.append(",");
-            sb.append(embedding.get(i));
-        }
-        sb.append("]");
-        return sb.toString();
     }
 }
