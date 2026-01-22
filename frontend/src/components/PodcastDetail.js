@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { podcastApi } from '../services/api';
 import './PodcastDetail.css';
@@ -10,14 +10,7 @@ function PodcastDetail() {
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadPodcast();
-    // Refresh every 10 seconds to show processing updates
-    const interval = setInterval(loadPodcast, 10000);
-    return () => clearInterval(interval);
-  }, [id]);
-
-  const loadPodcast = async () => {
+  const loadPodcast = useCallback(async () => {
     try {
       const response = await podcastApi.getPodcast(id);
       setPodcast(response.data);
@@ -27,7 +20,14 @@ function PodcastDetail() {
       setLoading(false);
       console.error(err);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    loadPodcast();
+    // Refresh every 10 seconds to show processing updates
+    const interval = setInterval(loadPodcast, 10000);
+    return () => clearInterval(interval);
+  }, [loadPodcast]);
 
   const handleSync = async () => {
     setSyncing(true);

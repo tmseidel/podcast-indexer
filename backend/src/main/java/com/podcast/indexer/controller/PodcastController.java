@@ -41,7 +41,7 @@ public class PodcastController {
     @PostMapping
     public ResponseEntity<PodcastResponse> addPodcast(@RequestBody AddPodcastRequest request) {
         try {
-            Podcast podcast = rssFeedService.addPodcast(request.getFeedUrl());
+            Podcast podcast = rssFeedService.addPodcast(request.getFeedUrl(), request.getDownloadUntilDate());
             return ResponseEntity.ok(toPodcastResponse(podcast));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -67,6 +67,7 @@ public class PodcastController {
                 .author(podcast.getAuthor())
                 .createdAt(podcast.getCreatedAt())
                 .lastSyncedAt(podcast.getLastSyncedAt())
+                .downloadUntilDate(podcast.getDownloadUntilDate())
                 .build();
     }
     

@@ -92,7 +92,8 @@ Open your browser and navigate to:
 
 1. Go to the main page at http://localhost:3000
 2. Enter an RSS feed URL (e.g., `https://feeds.example.com/podcast.rss`)
-3. Click "Add Podcast"
+3. (Optional) Pick a "Download episodes until" date to limit episode discovery
+4. Click "Add Podcast"
 4. The system will:
    - Fetch podcast metadata
    - Discover episodes
@@ -183,7 +184,8 @@ Long episodes (exceeding `MAX_MINUTES_BEFORE_SPLIT`) are automatically split int
 - `POST /api/podcasts` - Add new podcast
   ```json
   {
-    "feedUrl": "https://feeds.example.com/podcast.rss"
+    "feedUrl": "https://feeds.example.com/podcast.rss",
+    "downloadUntilDate": "2024-12-31"
   }
   ```
 - `POST /api/podcasts/{id}/sync` - Manually sync episodes

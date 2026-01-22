@@ -12,7 +12,10 @@ const api = axios.create({
 export const podcastApi = {
   getAllPodcasts: () => api.get('/podcasts'),
   getPodcast: (id) => api.get(`/podcasts/${id}`),
-  addPodcast: (feedUrl) => api.post('/podcasts', { feedUrl }),
+  addPodcast: (feedUrl, downloadUntilDate) => api.post('/podcasts', {
+    feedUrl,
+    downloadUntilDate: downloadUntilDate || null,
+  }),
   syncPodcast: (id) => api.post(`/podcasts/${id}/sync`),
 };
 

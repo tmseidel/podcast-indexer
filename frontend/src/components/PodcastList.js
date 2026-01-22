@@ -6,6 +6,7 @@ import './PodcastList.css';
 function PodcastList() {
   const [podcasts, setPodcasts] = useState([]);
   const [feedUrl, setFeedUrl] = useState('');
+  const [downloadUntilDate, setDownloadUntilDate] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -31,8 +32,9 @@ function PodcastList() {
     setError(null);
 
     try {
-      await podcastApi.addPodcast(feedUrl);
+      await podcastApi.addPodcast(feedUrl, downloadUntilDate);
       setFeedUrl('');
+      setDownloadUntilDate('');
       await loadPodcasts();
     } catch (err) {
       setError('Failed to add podcast. Please check the URL and try again.');
@@ -53,6 +55,14 @@ function PodcastList() {
           value={feedUrl}
           onChange={(e) => setFeedUrl(e.target.value)}
           disabled={loading}
+        />
+        <input
+          type="date"
+          value={downloadUntilDate}
+          onChange={(e) => setDownloadUntilDate(e.target.value)}
+          disabled={loading}
+          aria-label="Download episodes until"
+          title="Download episodes up to this date"
         />
         <button type="submit" disabled={loading || !feedUrl.trim()}>
           {loading ? 'Adding...' : 'Add Podcast'}

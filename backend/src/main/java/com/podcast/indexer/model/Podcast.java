@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +43,9 @@ public class Podcast {
     
     @Column(name = "last_synced_at")
     private LocalDateTime lastSyncedAt;
+
+    @Column(name = "download_until_date")
+    private LocalDate downloadUntilDate;
     
     @OneToMany(mappedBy = "podcast", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
