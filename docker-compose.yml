@@ -47,9 +47,8 @@ services:
       test:
         - CMD-SHELL
         - >
-          models=$$(ollama list | awk 'NR>1{print $$1}' | sed 's/:.*//') &&
-          echo "$$models" | grep -Fxq "$$OLLAMA_EMBEDDING_MODEL" &&
-          echo "$$models" | grep -Fxq "$$OLLAMA_CHAT_MODEL"
+          ollama show "$$OLLAMA_EMBEDDING_MODEL" >/dev/null 2>&1 &&
+          ollama show "$$OLLAMA_CHAT_MODEL" >/dev/null 2>&1
       interval: 30s
       timeout: 10s
       retries: 5
