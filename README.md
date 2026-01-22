@@ -64,7 +64,7 @@ This will start all services:
 
 ### 3. Pull Required Ollama Models
 
-Pull the required models before starting services (or immediately after; the backend waits for them):
+Pull the required models before starting services (or use the setup script which handles it for you):
 
 ```bash
 # Ensure the ollama-data volume exists so model pulls persist
