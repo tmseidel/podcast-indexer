@@ -101,10 +101,8 @@ public class JobQueueService {
         private String jobId;
 
         public void ensureJobId() {
-            synchronized (this) {
-                if (jobId == null || jobId.isBlank()) {
-                    jobId = UUID.randomUUID().toString();
-                }
+            if (jobId == null || jobId.isBlank()) {
+                jobId = UUID.randomUUID().toString();
             }
         }
     }

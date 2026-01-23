@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +29,7 @@ public class JobWorkerService {
     private final PodcastConfig config;
 
     private ExecutorService executorService;
-    private final AtomicInteger activeJobs = new AtomicInteger(0);
-    private final AtomicReference<List<ActiveJob>> activeJobSnapshots = new AtomicReference<>(List.of());
-    private final Object activeJobLock = new Object();
+    private final ConcurrentMap<String, ActiveJob> activeJobs = new ConcurrentHashMap<>();
 
     private static final int MAX_PARALLELISM = 16;
     
@@ -62,8 +60,8 @@ public class JobWorkerService {
         JobQueueService.QueueSnapshot snapshot = jobQueueService.getQueueSnapshot(queuePreviewLimit);
         return JobWorkerStatus.builder()
                 .parallelism(config.getJobs().getWorker().getParallelism())
-                .activeJobCount(activeJobs.get())
-                .activeJobs(activeJobSnapshots.get())
+                .activeJobCount(activeJobs.size())
+                .activeJobs(new ArrayList<>(activeJobs.values()))
                 .queueSize(snapshot.getTotalSize())
                 .queuedJobs(snapshot.getJobs())
                 .lastUpdated(LocalDateTime.now())
@@ -79,8 +77,8 @@ public class JobWorkerService {
                 sleep(pollDelay);
                 continue;
             }
-            activeJobs.incrementAndGet();
-            updateActiveJobs(job, true);
+            job.ensureJobId();
+            activeJobs.put(job.getJobId(), ActiveJob.from(job));
             try {
                 log.info("Processing job: {}", job);
                 switch (job.getType()) {
@@ -104,21 +102,8 @@ public class JobWorkerService {
                 log.error("Failed to process job: {}", job, e);
                 // In production, you might want to implement retry logic or dead letter queue
             } finally {
-                updateActiveJobs(job, false);
-                activeJobs.decrementAndGet();
+                activeJobs.remove(job.getJobId());
             }
-        }
-    }
-
-    private void updateActiveJobs(JobQueueService.Job job, boolean add) {
-        synchronized (activeJobLock) {
-            List<ActiveJob> current = new ArrayList<>(activeJobSnapshots.get());
-            if (add) {
-                current.add(ActiveJob.from(job));
-            } else {
-                current.removeIf(activeJob -> activeJob.getJobId().equals(job.getJobId()));
-            }
-            activeJobSnapshots.set(List.copyOf(current));
         }
     }
 

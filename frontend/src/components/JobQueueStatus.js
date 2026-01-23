@@ -6,7 +6,7 @@ const REFRESH_INTERVAL_MS = 5000;
 
 const buildJobKey = (job, index) => {
   if (job.jobId) {
-    return `${job.jobId}-${index}`;
+    return job.jobId;
   }
   const keyParts = [
     job.type ?? 'job',
