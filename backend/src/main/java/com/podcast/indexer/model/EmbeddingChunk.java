@@ -37,6 +37,9 @@ public class EmbeddingChunk {
     
     @Column(columnDefinition = "TEXT", nullable = false)
     private String text;
+
+    @Column(name = "speaker_labels", columnDefinition = "TEXT")
+    private String speakerLabels;
     
     @Column(columnDefinition = "vector(768)")
     @ColumnTransformer(write = "?::vector")

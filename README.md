@@ -7,7 +7,7 @@ A local-first podcast indexing and Q&A system that uses Whisper for transcriptio
 - 🎙️ **Podcast Management**: Add podcasts via RSS feed URL
 - 📥 **Automatic Episode Discovery**: Fetch and sync episodes from RSS feeds
 - 🎵 **Audio Processing**: Download episodes with configurable splitting for long content
-- 📝 **Transcription**: Local Whisper-based transcription with accurate timestamps
+- 📝 **Transcription**: Local Whisper-based transcription with accurate timestamps and optional speaker labels
 - 🔍 **Vector Search**: Semantic search using pgvector and Ollama embeddings
 - 💬 **Q&A System**: Ask questions about podcast content with citations and timestamps
 - 🔄 **Background Processing**: Redis-backed job queue for async processing
@@ -19,7 +19,7 @@ A local-first podcast indexing and Q&A system that uses Whisper for transcriptio
 - **Frontend**: React
 - **Database**: PostgreSQL with pgvector extension
 - **Job Queue**: Redis
-- **Transcription**: Local Whisper service (Python/Flask)
+- **Transcription**: Local Whisper service (Python/Flask) with optional speaker diarization
 - **Embeddings & Chat**: Ollama (local LLM)
 - **Audio Storage**: Docker volume
 
@@ -109,7 +109,7 @@ Once a podcast is added, episodes go through these stages:
 1. **DISCOVERED**: Episode found in RSS feed
 2. **DOWNLOADING**: Audio file being downloaded
 3. **DOWNLOADED**: Audio downloaded successfully
-4. **TRANSCRIBING**: Being transcribed by Whisper
+4. **TRANSCRIBING**: Being transcribed by Whisper (optional diarization for speaker labels)
 5. **TRANSCRIBED**: Transcription complete
 6. **INDEXING**: Generating embeddings and storing in vector DB
 7. **INDEXED**: Fully processed and searchable
@@ -148,6 +148,11 @@ OLLAMA_CHAT_MODEL: llama2  # Chat model for Q&A
 #### Vector Search
 ```yaml
 VECTOR_SEARCH_TOP_K: 5  # Number of relevant chunks to retrieve
+```
+
+#### Speaker Diarization (Optional)
+```yaml
+PYANNOTE_AUTH_TOKEN: your_huggingface_token  # Enable speaker labels for transcripts
 ```
 
 ### Changing Models
@@ -245,6 +250,7 @@ npm run build
 
 ### Whisper Service Fails to Start
 - Ensure you have enough disk space for the model download
+- If using speaker labels, ensure `PYANNOTE_AUTH_TOKEN` is set (see configuration above)
 - Check logs: `docker logs podcast-whisper`
 
 ### Ollama Models Not Found

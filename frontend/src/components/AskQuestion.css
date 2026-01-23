@@ -132,6 +132,12 @@
   margin: 0 0 1rem 0;
 }
 
+.citation-speakers {
+  color: #5d6d7e;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
 .citation-actions {
   display: flex;
   gap: 1rem;

@@ -62,6 +62,7 @@ public class QuestionAnswerService {
                     .audioUrl(episode.getAudioUrl())
                     .startMs(chunk.getStartMs())
                     .endMs(chunk.getEndMs())
+                    .speakerLabels(chunk.getSpeakerLabels())
                     .textSnippet(chunk.getText().substring(0, Math.min(200, chunk.getText().length())))
                     .listenLink("/episodes/" + episode.getId() + "?t=" + (chunk.getStartMs() / 1000))
                     .build();
