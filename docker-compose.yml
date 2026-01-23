@@ -88,6 +88,9 @@ services:
       OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-llama2}
       AUDIO_STORAGE_PATH: /app/data/audio
       MAX_MINUTES_BEFORE_SPLIT: 60
+      JOB_WORKER_PARALLELISM: ${JOB_WORKER_PARALLELISM:-1}
+      JOB_WORKER_POLL_DELAY_MS: ${JOB_WORKER_POLL_DELAY_MS:-1000}
+      JOB_QUEUE_STATUS_LIMIT: ${JOB_QUEUE_STATUS_LIMIT:-50}
       CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost
     volumes:
       - audio-data:/app/data/audio

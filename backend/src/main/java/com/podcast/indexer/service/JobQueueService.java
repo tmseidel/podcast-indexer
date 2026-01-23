@@ -7,9 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -23,23 +25,26 @@ public class JobQueueService {
     private static final String QUEUE_KEY = "podcast:jobs";
     
     public void queueSyncEpisodesJob(Long podcastId) {
-        queueJob(new Job(JobType.SYNC_EPISODES, podcastId, null, null));
+        queueJob(new Job(JobType.SYNC_EPISODES, podcastId, null, null, null));
     }
     
     public void queueDownloadAudioJob(Long episodeId) {
-        queueJob(new Job(JobType.DOWNLOAD_AUDIO, episodeId, null, null));
+        queueJob(new Job(JobType.DOWNLOAD_AUDIO, episodeId, null, null, null));
     }
     
     public void queueTranscribeJob(Long episodeId, int partIndex, String audioFilePath) {
-        queueJob(new Job(JobType.TRANSCRIBE, episodeId, partIndex, audioFilePath));
+        queueJob(new Job(JobType.TRANSCRIBE, episodeId, partIndex, audioFilePath, null));
     }
     
     public void queueIndexEpisodeJob(Long episodeId) {
-        queueJob(new Job(JobType.INDEX_EPISODE, episodeId, null, null));
+        queueJob(new Job(JobType.INDEX_EPISODE, episodeId, null, null, null));
     }
     
     private void queueJob(Job job) {
         try {
+            if (job.getJobId() == null || job.getJobId().isBlank()) {
+                job.setJobId(UUID.randomUUID().toString());
+            }
             String jobJson = objectMapper.writeValueAsString(job);
             redisTemplate.opsForList().rightPush(QUEUE_KEY, jobJson);
             log.debug("Queued job: {}", job);
@@ -59,6 +64,29 @@ public class JobQueueService {
         }
         return null;
     }
+
+    public QueueSnapshot getQueueSnapshot(int limit) {
+        List<String> items = redisTemplate.opsForList().range(QUEUE_KEY, 0, Math.max(0, limit - 1));
+        List<Job> jobs = new ArrayList<>();
+        if (items != null) {
+            for (String item : items) {
+                try {
+                    jobs.add(objectMapper.readValue(item, Job.class));
+                } catch (Exception e) {
+                    log.warn("Failed to parse queued job", e);
+                }
+            }
+        }
+        Long size = redisTemplate.opsForList().size(QUEUE_KEY);
+        return new QueueSnapshot(size != null ? size : 0L, jobs);
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class QueueSnapshot {
+        private long totalSize;
+        private List<Job> jobs;
+    }
     
     @Data
     @NoArgsConstructor
@@ -68,6 +96,7 @@ public class JobQueueService {
         private Long resourceId; // podcast or episode ID
         private Integer partIndex;
         private String audioFilePath;
+        private String jobId;
     }
     
     public enum JobType {
