@@ -57,7 +57,11 @@ public class JobQueueService {
         try {
             String jobJson = redisTemplate.opsForList().leftPop(QUEUE_KEY, timeoutSeconds, TimeUnit.SECONDS);
             if (jobJson != null) {
-                return objectMapper.readValue(jobJson, Job.class);
+                Job job = objectMapper.readValue(jobJson, Job.class);
+                if (job.getJobId() == null || job.getJobId().isBlank()) {
+                    job.setJobId(UUID.randomUUID().toString());
+                }
+                return job;
             }
         } catch (Exception e) {
             log.error("Failed to dequeue job", e);
