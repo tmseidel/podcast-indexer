@@ -163,6 +163,12 @@
   font-size: 0.85rem;
 }
 
+.queue-note {
+  margin-top: 0.75rem;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
 .empty-state {
   text-align: center;
   padding: 2rem;

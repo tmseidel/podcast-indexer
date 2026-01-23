@@ -112,6 +112,11 @@ function JobQueueStatus() {
         ) : (
           <div className="empty-state">No jobs are currently running.</div>
         )}
+        {status?.queueSize > (status?.queuedJobs?.length || 0) && (
+          <div className="queue-note">
+            Showing first {status?.queuedJobs?.length || 0} of {status?.queueSize} queued jobs.
+          </div>
+        )}
       </div>
 
       <div className="job-section">
