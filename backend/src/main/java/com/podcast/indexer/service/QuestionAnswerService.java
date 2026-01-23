@@ -96,7 +96,7 @@ public class QuestionAnswerService {
     }
 
     public static String cacheKey(Long podcastId, String question) {
-        String normalized = question == null ? "" : question.toLowerCase();
+        String normalized = normalizeQuestion(question);
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(normalized.getBytes(StandardCharsets.UTF_8));
@@ -110,5 +110,13 @@ public class QuestionAnswerService {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 not available", e);
         }
+    }
+
+    private static String normalizeQuestion(String question) {
+        if (question == null) {
+            return "";
+        }
+        String normalized = question.toLowerCase().trim().replaceAll("\\s+", " ");
+        return normalized.replaceAll("\\s+([?.!,;:])", "$1").replaceAll("([?.!,;:])\\s+", "$1");
     }
 }

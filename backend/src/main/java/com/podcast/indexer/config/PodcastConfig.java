@@ -73,6 +73,8 @@ public class PodcastConfig {
 
         @Data
         public static class Cache {
+            // Limit TTL to 1 minute minimum to prevent immediate cache churn
+            // and 24 hours maximum to keep answers reasonably fresh.
             private static final int MIN_TTL_MINUTES = 1;
             private static final int MAX_TTL_MINUTES = 1440;
             private int ttlMinutes = 60;
