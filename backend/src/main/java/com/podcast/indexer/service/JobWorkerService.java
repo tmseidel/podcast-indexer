@@ -31,6 +31,7 @@ public class JobWorkerService {
     private ExecutorService executorService;
     private final AtomicInteger activeJobs = new AtomicInteger(0);
     private final AtomicReference<List<ActiveJob>> activeJobSnapshots = new AtomicReference<>(List.of());
+    private final Object activeJobLock = new Object();
     
     @PostConstruct
     public void startWorkers() {
@@ -67,8 +68,9 @@ public class JobWorkerService {
 
     private void runWorkerLoop() {
         long pollDelay = config.getJobs().getWorker().getPollDelayMs();
+        long dequeueTimeoutSeconds = config.getJobs().getWorker().getDequeueTimeoutSeconds();
         while (!Thread.currentThread().isInterrupted()) {
-            JobQueueService.Job job = jobQueueService.dequeueJob(5);
+            JobQueueService.Job job = jobQueueService.dequeueJob(dequeueTimeoutSeconds);
             if (job == null) {
                 sleep(pollDelay);
                 continue;
@@ -105,7 +107,7 @@ public class JobWorkerService {
     }
 
     private void updateActiveJobs(JobQueueService.Job job, boolean add) {
-        synchronized (activeJobSnapshots) {
+        synchronized (activeJobLock) {
             List<ActiveJob> current = new ArrayList<>(activeJobSnapshots.get());
             if (add) {
                 current.add(ActiveJob.from(job));

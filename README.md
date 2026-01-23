@@ -158,6 +158,7 @@ VECTOR_SEARCH_TOP_K: 5  # Number of relevant chunks to retrieve
 ```yaml
 JOB_WORKER_PARALLELISM: 1  # Number of worker threads per instance
 JOB_WORKER_POLL_DELAY_MS: 1000  # Delay between empty queue polls
+JOB_WORKER_DEQUEUE_TIMEOUT_SECONDS: 5  # Blocking pop timeout for worker threads
 JOB_QUEUE_STATUS_LIMIT: 50  # Max queued jobs returned in status view
 ```
 

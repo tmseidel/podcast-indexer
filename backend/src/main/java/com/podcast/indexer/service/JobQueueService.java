@@ -42,9 +42,7 @@ public class JobQueueService {
     
     private void queueJob(Job job) {
         try {
-            if (job.getJobId() == null || job.getJobId().isBlank()) {
-                job.setJobId(UUID.randomUUID().toString());
-            }
+            job.ensureJobId();
             String jobJson = objectMapper.writeValueAsString(job);
             redisTemplate.opsForList().rightPush(QUEUE_KEY, jobJson);
             log.debug("Queued job: {}", job);
@@ -58,9 +56,7 @@ public class JobQueueService {
             String jobJson = redisTemplate.opsForList().leftPop(QUEUE_KEY, timeoutSeconds, TimeUnit.SECONDS);
             if (jobJson != null) {
                 Job job = objectMapper.readValue(jobJson, Job.class);
-                if (job.getJobId() == null || job.getJobId().isBlank()) {
-                    job.setJobId(UUID.randomUUID().toString());
-                }
+                job.ensureJobId();
                 return job;
             }
         } catch (Exception e) {
@@ -75,7 +71,9 @@ public class JobQueueService {
         if (items != null) {
             for (String item : items) {
                 try {
-                    jobs.add(objectMapper.readValue(item, Job.class));
+                    Job job = objectMapper.readValue(item, Job.class);
+                    job.ensureJobId();
+                    jobs.add(job);
                 } catch (Exception e) {
                     log.warn("Failed to parse queued job", e);
                 }
@@ -101,6 +99,12 @@ public class JobQueueService {
         private Integer partIndex;
         private String audioFilePath;
         private String jobId;
+
+        public void ensureJobId() {
+            if (jobId == null || jobId.isBlank()) {
+                jobId = UUID.randomUUID().toString();
+            }
+        }
     }
     
     public enum JobType {

@@ -76,6 +76,7 @@ public class PodcastConfig {
         public static class Worker {
             private int parallelism = 1;
             private long pollDelayMs = 1000;
+            private long dequeueTimeoutSeconds = 5;
         }
 
         @Data
