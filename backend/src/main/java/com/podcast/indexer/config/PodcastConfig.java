@@ -73,11 +73,14 @@ public class PodcastConfig {
 
         @Data
         public static class Cache {
+            private static final int MIN_TTL_MINUTES = 1;
+            private static final int MAX_TTL_MINUTES = 1440;
             private int ttlMinutes = 60;
 
             public void setTtlMinutes(int ttlMinutes) {
-                if (ttlMinutes < 1 || ttlMinutes > 1440) {
-                    throw new IllegalArgumentException("QA cache TTL must be between 1 and 1440 minutes");
+                if (ttlMinutes < MIN_TTL_MINUTES || ttlMinutes > MAX_TTL_MINUTES) {
+                    throw new IllegalArgumentException(
+                            "QA cache TTL must be between " + MIN_TTL_MINUTES + " and " + MAX_TTL_MINUTES + " minutes");
                 }
                 this.ttlMinutes = ttlMinutes;
             }

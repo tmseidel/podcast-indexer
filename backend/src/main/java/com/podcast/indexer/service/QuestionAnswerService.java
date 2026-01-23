@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +26,7 @@ public class QuestionAnswerService {
     private final EmbeddingChunkRepository embeddingChunkRepository;
     private final PodcastConfig config;
     
-    @Cacheable(value = "qa-answers", key = "'qa:' + #podcastId + ':' + #question.toLowerCase().hashCode()")
+    @Cacheable(value = "qa-answers", key = "T(com.podcast.indexer.service.QuestionAnswerService).cacheKey(#podcastId, #question)")
     public AnswerResponse answerQuestion(Long podcastId, String question) {
         // Generate embedding for the question
         List<Double> questionEmbedding = ollamaService.generateEmbedding(question);
@@ -89,6 +92,23 @@ public class QuestionAnswerService {
             return String.format("%d:%02d:%02d", hours, minutes % 60, seconds % 60);
         } else {
             return String.format("%d:%02d", minutes, seconds % 60);
+        }
+    }
+
+    public static String cacheKey(Long podcastId, String question) {
+        String normalized = question == null ? "" : question.toLowerCase();
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(normalized.getBytes(StandardCharsets.UTF_8));
+            StringBuilder builder = new StringBuilder("qa:")
+                    .append(podcastId)
+                    .append(":");
+            for (byte b : hash) {
+                builder.append(String.format("%02x", b));
+            }
+            return builder.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 not available", e);
         }
     }
 }
