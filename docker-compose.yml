@@ -38,13 +38,21 @@ services:
     container_name: podcast-ollama
     volumes:
       - ollama-data:/root/.ollama
+    environment:
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-llama2}
     ports:
       - "11434:11434"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434"]
+      test:
+        - CMD-SHELL
+        - >
+          ollama show "$$OLLAMA_EMBEDDING_MODEL" >/dev/null 2>&1 &&
+          ollama show "$$OLLAMA_CHAT_MODEL" >/dev/null 2>&1
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 30s
 
   # Whisper Service
   whisper-service:
@@ -76,8 +84,8 @@ services:
       REDIS_PORT: 6379
       WHISPER_SERVICE_URL: http://whisper-service:8000
       OLLAMA_SERVICE_URL: http://ollama:11434
-      OLLAMA_EMBEDDING_MODEL: nomic-embed-text
-      OLLAMA_CHAT_MODEL: llama2
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-llama2}
       AUDIO_STORAGE_PATH: /app/data/audio
       MAX_MINUTES_BEFORE_SPLIT: 60
       CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost
@@ -117,4 +125,5 @@ services:
 volumes:
   postgres-data:
   ollama-data:
+    name: ${OLLAMA_VOLUME_NAME:-podcast-indexer_ollama-data}
   audio-data:

@@ -17,6 +17,27 @@ if ! command -v docker-compose &> /dev/null; then
     exit 1
 fi
 
+OLLAMA_VOLUME_NAME=${OLLAMA_VOLUME_NAME:-podcast-indexer_ollama-data}
+OLLAMA_IMAGE=${OLLAMA_IMAGE:-ollama/ollama:latest}
+docker volume create "${OLLAMA_VOLUME_NAME}" 2>/dev/null
+
+echo "Pulling required Ollama models..."
+echo "This may take a while depending on your internet connection..."
+echo ""
+
+pull_ollama_model() {
+    local description=$1
+    local model=$2
+    echo "Pulling ${description}..."
+    docker run --rm -v "${OLLAMA_VOLUME_NAME}":/root/.ollama "${OLLAMA_IMAGE}" ollama pull "${model}" || exit 1
+    echo ""
+}
+
+OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+OLLAMA_CHAT_MODEL=${OLLAMA_CHAT_MODEL:-llama2}
+
+pull_ollama_model "embedding model (${OLLAMA_EMBEDDING_MODEL})" "${OLLAMA_EMBEDDING_MODEL}"
+pull_ollama_model "chat model (${OLLAMA_CHAT_MODEL})" "${OLLAMA_CHAT_MODEL}"
 echo "Starting all services..."
 docker-compose up -d
 
@@ -24,19 +45,6 @@ echo ""
 echo "Waiting for services to be healthy..."
 sleep 30
 
-echo ""
-echo "Pulling required Ollama models..."
-echo "This may take a while depending on your internet connection..."
-echo ""
-
-echo "Pulling embedding model (nomic-embed-text)..."
-docker exec podcast-ollama ollama pull nomic-embed-text
-
-echo ""
-echo "Pulling chat model (llama2)..."
-docker exec podcast-ollama ollama pull llama2
-
-echo ""
 echo "======================================"
 echo "Setup complete!"
 echo "======================================"
