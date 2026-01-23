@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install system dependencies for Whisper
 RUN apt-get update && \
-    apt-get install -y ffmpeg git && \
+    apt-get install -y ffmpeg git curl && \
     rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
