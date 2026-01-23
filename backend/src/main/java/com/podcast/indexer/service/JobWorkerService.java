@@ -73,7 +73,7 @@ public class JobWorkerService {
     private void runWorkerLoop() {
         long pollDelay = config.getJobs().getWorker().getPollDelayMs();
         long dequeueTimeoutSeconds = config.getJobs().getWorker().getDequeueTimeoutSeconds();
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted() && (executorService == null || !executorService.isShutdown())) {
             JobQueueService.Job job = jobQueueService.dequeueJob(dequeueTimeoutSeconds);
             if (job == null) {
                 sleep(pollDelay);

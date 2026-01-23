@@ -12,6 +12,7 @@ const buildJobKey = (job, index) => {
     job.type ?? 'job',
     job.resourceId ?? 'resource',
     job.partIndex ?? 'part',
+    job.audioFilePath ?? 'audio',
     index,
   ];
   return keyParts.join('-');
