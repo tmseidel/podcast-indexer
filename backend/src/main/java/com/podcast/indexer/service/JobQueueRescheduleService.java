@@ -30,9 +30,7 @@ public class JobQueueRescheduleService {
         List<Episode> episodes = episodeRepository.findByStatus(ProcessingStatus.TRANSCRIBING);
         for (Episode episode : episodes) {
             if (transcriptSegmentRepository.existsByEpisodeId(episode.getId())) {
-                episode.setStatus(ProcessingStatus.TRANSCRIBED);
-                episodeRepository.save(episode);
-                rescheduleIndexingIfReady(episode);
+                markTranscribedAndRescheduleIndexing(episode);
                 continue;
             }
 
@@ -67,5 +65,11 @@ public class JobQueueRescheduleService {
         }
         log.info("Rescheduling indexing for episode {}", episode.getId());
         jobQueueService.queueIndexEpisodeJob(episode.getId());
+    }
+
+    private void markTranscribedAndRescheduleIndexing(Episode episode) {
+        episode.setStatus(ProcessingStatus.TRANSCRIBED);
+        episodeRepository.save(episode);
+        rescheduleIndexingIfReady(episode);
     }
 }
