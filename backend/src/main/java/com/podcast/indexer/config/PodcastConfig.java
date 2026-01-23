@@ -12,6 +12,7 @@ public class PodcastConfig {
     private Whisper whisper = new Whisper();
     private Ollama ollama = new Ollama();
     private Vector vector = new Vector();
+    private Qa qa = new Qa();
     
     @Data
     public static class Audio {
@@ -63,6 +64,16 @@ public class PodcastConfig {
         @Data
         public static class Search {
             private int topK = 5;
+        }
+    }
+
+    @Data
+    public static class Qa {
+        private Cache cache = new Cache();
+
+        @Data
+        public static class Cache {
+            private int ttlMinutes = 60;
         }
     }
 }

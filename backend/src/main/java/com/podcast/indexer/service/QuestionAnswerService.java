@@ -8,6 +8,7 @@ import com.podcast.indexer.repository.EmbeddingChunkRepository;
 import com.podcast.indexer.util.EmbeddingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class QuestionAnswerService {
     private final EmbeddingChunkRepository embeddingChunkRepository;
     private final PodcastConfig config;
     
+    @Cacheable(value = "qa-answers", key = "#podcastId + ':' + #question.toLowerCase()")
     public AnswerResponse answerQuestion(Long podcastId, String question) {
         // Generate embedding for the question
         List<Double> questionEmbedding = ollamaService.generateEmbedding(question);

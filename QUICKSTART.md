@@ -60,6 +60,15 @@ docker volume create podcast-indexer_ollama-data
 docker run --rm -v podcast-indexer_ollama-data:/root/.ollama ollama/ollama:latest ollama pull mistral
 ```
 
+## Faster Q&A Responses
+
+Set a cache TTL to reuse answers for repeated questions:
+
+```bash
+export QA_CACHE_TTL_MINUTES=60
+docker-compose up -d backend
+```
+
 ## Troubleshooting
 
 **Problem**: Services won't start
