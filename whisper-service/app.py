@@ -14,6 +14,10 @@ print("Whisper model loaded successfully")
 def health():
     return jsonify({"status": "ok"})
 
+@app.route('/', methods=['GET'])
+def root():
+    return health()
+
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
     if 'file' not in request.files:
