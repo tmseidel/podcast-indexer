@@ -92,7 +92,7 @@ Open your browser and navigate to:
 
 1. Go to the main page at http://localhost:3000
 2. Enter an RSS feed URL (e.g., `https://feeds.example.com/podcast.rss`)
-3. (Optional) Pick a "Download episodes until" date to limit episode discovery
+3. (Optional) Pick a "Download episodes on or after" date to limit episode discovery
 4. Click "Add Podcast"
 5. The system will:
    - Fetch podcast metadata

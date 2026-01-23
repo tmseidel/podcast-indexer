@@ -120,8 +120,8 @@ public class RssFeedService {
         podcastRepository.save(podcast);
     }
 
-    private boolean shouldDownloadEpisode(SyndEntry entry, LocalDate downloadUntilDate) {
-        if (downloadUntilDate == null) {
+    private boolean shouldDownloadEpisode(SyndEntry entry, LocalDate downloadFromDate) {
+        if (downloadFromDate == null) {
             return true;
         }
         if (entry.getPublishedDate() == null) {
@@ -131,7 +131,7 @@ public class RssFeedService {
                 .toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
-        return !entryDate.isAfter(downloadUntilDate);
+        return !entryDate.isBefore(downloadFromDate);
     }
     
     private SyndFeed fetchFeed(String feedUrl) {

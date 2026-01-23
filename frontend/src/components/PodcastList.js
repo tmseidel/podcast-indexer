@@ -61,8 +61,8 @@ function PodcastList() {
           value={downloadUntilDate}
           onChange={(e) => setDownloadUntilDate(e.target.value)}
           disabled={loading}
-          aria-label="Download episodes until"
-          title="Download episodes up to this date"
+          aria-label="Download episodes on or after"
+          title="Download episodes on or after this date"
         />
         <button type="submit" disabled={loading || !feedUrl.trim()}>
           {loading ? 'Adding...' : 'Add Podcast'}
