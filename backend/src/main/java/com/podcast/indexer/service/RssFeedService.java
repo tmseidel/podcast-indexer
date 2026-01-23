@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class RssFeedService {
     private final JobQueueService jobQueueService;
     
     @Transactional
-    public Podcast addPodcast(String feedUrl) {
+    public Podcast addPodcast(String feedUrl, LocalDate downloadUntilDate) {
         if (podcastRepository.existsByFeedUrl(feedUrl)) {
             throw new IllegalArgumentException("Podcast already exists");
         }
@@ -45,6 +46,7 @@ public class RssFeedService {
                 .description(feed.getDescription())
                 .author(feed.getAuthor())
                 .imageUrl(feed.getImage() != null ? feed.getImage().getUrl() : null)
+                .downloadUntilDate(downloadUntilDate)
                 .build();
         
         podcast = podcastRepository.save(podcast);
@@ -65,6 +67,9 @@ public class RssFeedService {
         List<Episode> newEpisodes = new ArrayList<>();
         
         for (SyndEntry entry : feed.getEntries()) {
+            if (!shouldDownloadEpisode(entry, podcast.getDownloadUntilDate())) {
+                continue;
+            }
             String guid = entry.getUri();
             String audioUrl = extractAudioUrl(entry);
             
@@ -113,6 +118,20 @@ public class RssFeedService {
         
         podcast.setLastSyncedAt(LocalDateTime.now());
         podcastRepository.save(podcast);
+    }
+
+    private boolean shouldDownloadEpisode(SyndEntry entry, LocalDate downloadFromDate) {
+        if (downloadFromDate == null) {
+            return true;
+        }
+        if (entry.getPublishedDate() == null) {
+            return true;
+        }
+        LocalDate entryDate = entry.getPublishedDate()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        return !entryDate.isBefore(downloadFromDate);
     }
     
     private SyndFeed fetchFeed(String feedUrl) {
