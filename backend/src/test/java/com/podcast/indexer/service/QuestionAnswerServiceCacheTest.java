@@ -7,6 +7,7 @@ import com.podcast.indexer.model.Episode;
 import com.podcast.indexer.repository.EmbeddingChunkRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -27,16 +28,16 @@ import static org.mockito.Mockito.*;
 @ContextConfiguration(classes = QuestionAnswerServiceCacheTest.TestConfig.class)
 class QuestionAnswerServiceCacheTest {
 
-    @org.springframework.beans.factory.annotation.Autowired
+    @Autowired
     private QuestionAnswerService questionAnswerService;
 
-    @org.springframework.beans.factory.annotation.Autowired
+    @Autowired
     private OllamaService ollamaService;
 
-    @org.springframework.beans.factory.annotation.Autowired
+    @Autowired
     private EmbeddingChunkRepository embeddingChunkRepository;
 
-    @org.springframework.beans.factory.annotation.Autowired
+    @Autowired
     private PodcastConfig podcastConfig;
 
     @Test

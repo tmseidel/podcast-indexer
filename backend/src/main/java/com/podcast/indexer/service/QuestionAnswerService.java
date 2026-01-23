@@ -23,7 +23,7 @@ public class QuestionAnswerService {
     private final EmbeddingChunkRepository embeddingChunkRepository;
     private final PodcastConfig config;
     
-    @Cacheable(value = "qa-answers", key = "#podcastId + ':' + #question.toLowerCase()")
+    @Cacheable(value = "qa-answers", key = "'qa:' + #podcastId + ':' + #question.length() + ':' + #question.toLowerCase()")
     public AnswerResponse answerQuestion(Long podcastId, String question) {
         // Generate embedding for the question
         List<Double> questionEmbedding = ollamaService.generateEmbedding(question);
