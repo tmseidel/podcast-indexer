@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,8 +64,16 @@ public class IndexingService {
                 long startMs = chunkSegments.get(0).getStartMs();
                 long endMs = chunkSegments.get(chunkSegments.size() - 1).getEndMs();
                 
+                String speakerLabels = chunkSegments.stream()
+                        .map(TranscriptSegment::getSpeakerLabel)
+                        .filter(label -> label != null && !label.isBlank())
+                        .distinct()
+                        .collect(Collectors.joining(", "));
+
                 for (TranscriptSegment seg : chunkSegments) {
-                    textBuilder.append(seg.getText()).append(" ");
+                    textBuilder.append(formatSpeakerPrefix(seg.getSpeakerLabel()))
+                            .append(seg.getText())
+                            .append(" ");
                 }
                 
                 String text = textBuilder.toString().trim();
@@ -79,6 +88,7 @@ public class IndexingService {
                         .startMs(startMs)
                         .endMs(endMs)
                         .text(text)
+                        .speakerLabels(speakerLabels.isBlank() ? null : speakerLabels)
                         .embedding(embeddingStr)
                         .build();
                 
@@ -96,5 +106,12 @@ public class IndexingService {
             episode.setStatus(ProcessingStatus.FAILED);
             episodeRepository.save(episode);
         }
+    }
+
+    private String formatSpeakerPrefix(String speakerLabel) {
+        if (speakerLabel == null || speakerLabel.isBlank()) {
+            return "";
+        }
+        return speakerLabel + ": ";
     }
 }

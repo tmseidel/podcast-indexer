@@ -25,6 +25,7 @@ public class AnswerResponse {
         private String audioUrl;
         private Long startMs;
         private Long endMs;
+        private String speakerLabels;
         private String textSnippet;
         private String listenLink;
     }

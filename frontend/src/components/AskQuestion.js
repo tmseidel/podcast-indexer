@@ -121,6 +121,9 @@ function AskQuestion() {
                       {formatTimestamp(citation.startMs)} - {formatTimestamp(citation.endMs)}
                     </span>
                   </div>
+                  {citation.speakerLabels && (
+                    <div className="citation-speakers">Speakers: {citation.speakerLabels}</div>
+                  )}
                   <p className="citation-snippet">{citation.textSnippet}</p>
                   <div className="citation-actions">
                     <a 

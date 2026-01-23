@@ -60,6 +60,8 @@ services:
       context: ./whisper-service
       dockerfile: Dockerfile
     container_name: podcast-whisper
+    environment:
+      PYANNOTE_AUTH_TOKEN: ${PYANNOTE_AUTH_TOKEN:-}
     ports:
       - "8000:8000"
     healthcheck:

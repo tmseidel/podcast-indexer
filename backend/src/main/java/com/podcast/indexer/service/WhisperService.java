@@ -73,6 +73,7 @@ public class WhisperService {
                         .startMs((long) (seg.getStart() * 1000) + timeOffsetMs)
                         .endMs((long) (seg.getEnd() * 1000) + timeOffsetMs)
                         .text(seg.getText().trim())
+                        .speakerLabel(seg.getSpeaker())
                         .build();
                 segments.add(segment);
             }
@@ -117,5 +118,6 @@ public class WhisperService {
         private double start;
         private double end;
         private String text;
+        private String speaker;
     }
 }
