@@ -32,10 +32,12 @@ public class JobWorkerService {
     private final AtomicInteger activeJobs = new AtomicInteger(0);
     private final AtomicReference<List<ActiveJob>> activeJobSnapshots = new AtomicReference<>(List.of());
     private final Object activeJobLock = new Object();
+
+    private static final int MAX_PARALLELISM = 16;
     
     @PostConstruct
     public void startWorkers() {
-        int parallelism = Math.max(1, config.getJobs().getWorker().getParallelism());
+        int parallelism = Math.max(1, Math.min(config.getJobs().getWorker().getParallelism(), MAX_PARALLELISM));
         executorService = Executors.newFixedThreadPool(parallelism);
         for (int i = 0; i < parallelism; i++) {
             executorService.submit(this::runWorkerLoop);

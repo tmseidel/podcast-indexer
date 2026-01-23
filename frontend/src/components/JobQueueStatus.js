@@ -4,6 +4,19 @@ import './JobQueueStatus.css';
 
 const REFRESH_INTERVAL_MS = 5000;
 
+const buildJobKey = (job, index) => {
+  if (job.jobId) {
+    return `${job.jobId}-${index}`;
+  }
+  const keyParts = [
+    job.type ?? 'job',
+    job.resourceId ?? 'resource',
+    job.partIndex ?? 'part',
+    index,
+  ];
+  return keyParts.join('-');
+};
+
 function JobQueueStatus() {
   const [status, setStatus] = useState(null);
   const [limit, setLimit] = useState(10);
@@ -141,10 +154,7 @@ function JobQueueStatus() {
         {status?.queuedJobs?.length ? (
           <div className="job-list">
             {status.queuedJobs.map((job, index) => (
-              <div
-                key={job.jobId ? `${job.jobId}-${index}` : `queued-${index}`}
-                className="job-card"
-              >
+              <div key={buildJobKey(job, index)} className="job-card">
                 <div className="job-card-header">
                   <span className="job-type">{job.type}</span>
                   <span className="job-id">#{job.jobId?.slice(0, 8) || 'queued'}</span>
