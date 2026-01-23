@@ -29,10 +29,8 @@ public class JobQueueRescheduleService {
         List<Episode> episodes = episodeRepository.findByStatus(ProcessingStatus.TRANSCRIBING);
         for (Episode episode : episodes) {
             if (transcriptSegmentRepository.existsByEpisodeId(episode.getId())) {
-                if (episode.getStatus() != ProcessingStatus.TRANSCRIBED) {
-                    episode.setStatus(ProcessingStatus.TRANSCRIBED);
-                    episodeRepository.save(episode);
-                }
+                episode.setStatus(ProcessingStatus.TRANSCRIBED);
+                episodeRepository.save(episode);
                 if (!embeddingChunkRepository.existsByEpisodeId(episode.getId())) {
                     log.info("Rescheduling indexing for episode {}", episode.getId());
                     jobQueueService.queueIndexEpisodeJob(episode.getId());
