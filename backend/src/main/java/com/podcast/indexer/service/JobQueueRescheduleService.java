@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -31,14 +32,11 @@ public class JobQueueRescheduleService {
             if (transcriptSegmentRepository.existsByEpisodeId(episode.getId())) {
                 episode.setStatus(ProcessingStatus.TRANSCRIBED);
                 episodeRepository.save(episode);
-                if (!embeddingChunkRepository.existsByEpisodeId(episode.getId())) {
-                    log.info("Rescheduling indexing for episode {}", episode.getId());
-                    jobQueueService.queueIndexEpisodeJob(episode.getId());
-                }
+                rescheduleIndexingIfReady(episode);
                 continue;
             }
 
-            if (episode.getAudioFilePath() == null || episode.getAudioFilePath().isBlank()) {
+            if (!StringUtils.hasText(episode.getAudioFilePath())) {
                 log.warn("Episode {} stuck in TRANSCRIBING without audio, re-queueing download", episode.getId());
                 episode.setStatus(ProcessingStatus.DISCOVERED);
                 episodeRepository.save(episode);
@@ -56,14 +54,18 @@ public class JobQueueRescheduleService {
     public void rescheduleMissingIndexes() {
         List<Episode> episodes = episodeRepository.findByStatus(ProcessingStatus.TRANSCRIBED);
         for (Episode episode : episodes) {
-            if (!transcriptSegmentRepository.existsByEpisodeId(episode.getId())) {
-                continue;
-            }
-            if (embeddingChunkRepository.existsByEpisodeId(episode.getId())) {
-                continue;
-            }
-            log.info("Rescheduling indexing for episode {}", episode.getId());
-            jobQueueService.queueIndexEpisodeJob(episode.getId());
+            rescheduleIndexingIfReady(episode);
         }
+    }
+
+    private void rescheduleIndexingIfReady(Episode episode) {
+        if (!transcriptSegmentRepository.existsByEpisodeId(episode.getId())) {
+            return;
+        }
+        if (embeddingChunkRepository.existsByEpisodeId(episode.getId())) {
+            return;
+        }
+        log.info("Rescheduling indexing for episode {}", episode.getId());
+        jobQueueService.queueIndexEpisodeJob(episode.getId());
     }
 }
