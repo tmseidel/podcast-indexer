@@ -45,9 +45,11 @@ public class JobWorkerService {
     @PreDestroy
     public void stopWorkers() {
         if (executorService != null) {
-            executorService.shutdownNow();
+            executorService.shutdown();
             try {
-                executorService.awaitTermination(10, TimeUnit.SECONDS);
+                if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

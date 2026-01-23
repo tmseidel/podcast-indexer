@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { jobsApi } from '../services/api';
 import './JobQueueStatus.css';
 
@@ -9,6 +9,7 @@ function JobQueueStatus() {
   const [limit, setLimit] = useState(10);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const loadStatusRef = useRef(null);
 
   const loadStatus = useCallback(async () => {
     try {
@@ -29,9 +30,15 @@ function JobQueueStatus() {
   }, [loadStatus]);
 
   useEffect(() => {
-    const timer = setInterval(loadStatus, REFRESH_INTERVAL_MS);
-    return () => clearInterval(timer);
+    loadStatusRef.current = loadStatus;
   }, [loadStatus]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      loadStatusRef.current?.();
+    }, REFRESH_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, []);
 
   const formatDateTime = (value) => {
     if (!value) return '—';
@@ -134,7 +141,10 @@ function JobQueueStatus() {
         {status?.queuedJobs?.length ? (
           <div className="job-list">
             {status.queuedJobs.map((job, index) => (
-              <div key={`${job.jobId}-${index}`} className="job-card">
+              <div
+                key={job.jobId ? `${job.jobId}-${index}` : `queued-${index}`}
+                className="job-card"
+              >
                 <div className="job-card-header">
                   <span className="job-type">{job.type}</span>
                   <span className="job-id">#{job.jobId?.slice(0, 8) || 'queued'}</span>
