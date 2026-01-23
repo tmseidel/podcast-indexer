@@ -8,7 +8,6 @@ import com.podcast.indexer.repository.EmbeddingChunkRepository;
 import com.podcast.indexer.repository.TranscriptSegmentRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -35,7 +34,7 @@ class JobQueueRescheduleServiceTest {
                 .build();
 
         when(episodeRepository.findByStatus(ProcessingStatus.TRANSCRIBED))
-                .thenReturn(List.of(episode));
+                .thenReturn(Collections.singletonList(episode));
         when(transcriptSegmentRepository.existsByEpisodeId(episode.getId())).thenReturn(true);
         when(embeddingChunkRepository.existsByEpisodeId(episode.getId())).thenReturn(false);
 
