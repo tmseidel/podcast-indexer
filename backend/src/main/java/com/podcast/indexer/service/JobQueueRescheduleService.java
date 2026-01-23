@@ -17,12 +17,14 @@ import java.util.List;
 @Slf4j
 public class JobQueueRescheduleService {
 
+    private static final String RESCHEDULE_DELAY_MS = "${job.queue.reschedule.delay:60000}";
+
     private final EpisodeRepository episodeRepository;
     private final TranscriptSegmentRepository transcriptSegmentRepository;
     private final EmbeddingChunkRepository embeddingChunkRepository;
     private final JobQueueService jobQueueService;
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelayString = RESCHEDULE_DELAY_MS)
     public void rescheduleStuckTranscriptions() {
         List<Episode> episodes = episodeRepository.findByStatus(ProcessingStatus.TRANSCRIBING);
         for (Episode episode : episodes) {
@@ -52,7 +54,7 @@ public class JobQueueRescheduleService {
         }
     }
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelayString = RESCHEDULE_DELAY_MS)
     public void rescheduleMissingIndexes() {
         List<Episode> episodes = episodeRepository.findByStatus(ProcessingStatus.TRANSCRIBED);
         for (Episode episode : episodes) {
