@@ -54,12 +54,6 @@
             <artifactId>jedis</artifactId>
         </dependency>
         
-        <!-- HTTP client -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-        
         <!-- RSS parsing -->
         <dependency>
             <groupId>com.rometools</groupId>
