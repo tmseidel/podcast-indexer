@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.LocalDateTime;
 
@@ -38,6 +39,7 @@ public class EmbeddingChunk {
     private String text;
     
     @Column(columnDefinition = "vector(768)")
+    @ColumnTransformer(write = "?::vector")
     private String embedding;
     
     @Column(name = "created_at", nullable = false, updatable = false)
