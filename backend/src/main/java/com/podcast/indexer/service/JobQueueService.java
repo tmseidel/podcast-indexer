@@ -100,7 +100,7 @@ public class JobQueueService {
         private String audioFilePath;
         private String jobId;
 
-        public void ensureJobId() {
+        public synchronized void ensureJobId() {
             if (jobId == null || jobId.isBlank()) {
                 jobId = UUID.randomUUID().toString();
             }

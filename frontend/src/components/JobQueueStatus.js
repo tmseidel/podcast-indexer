@@ -59,6 +59,9 @@ function JobQueueStatus() {
     return new Date(value).toLocaleString();
   };
 
+  const queuedJobs = status?.queuedJobs ?? [];
+  const queuedJobKeys = queuedJobs.map((job, index) => buildJobKey(job, index));
+
   return (
     <div className="job-queue-status">
       <div className="job-queue-header">
@@ -152,10 +155,10 @@ function JobQueueStatus() {
             </select>
           </div>
         </div>
-        {status?.queuedJobs?.length ? (
+        {queuedJobs.length ? (
           <div className="job-list">
-            {status.queuedJobs.map((job, index) => (
-              <div key={buildJobKey(job, index)} className="job-card">
+            {queuedJobs.map((job, index) => (
+              <div key={queuedJobKeys[index]} className="job-card">
                 <div className="job-card-header">
                   <span className="job-type">{job.type}</span>
                   <span className="job-id">#{job.jobId?.slice(0, 8) || 'queued'}</span>
