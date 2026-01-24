@@ -283,9 +283,9 @@ docker-compose down -v
 
 ## Performance Considerations
 
-- **Transcription**: Whisper base model is a good balance of speed/accuracy
-  - Use `tiny` for faster, less accurate
-  - Use `small` or `medium` for better accuracy
+- **Transcription**: Whisper large-v3 is the default for highest accuracy
+  - Use `turbo` for faster transcription with slightly lower accuracy
+  - Use `small` or `medium` for lower resource usage
 - **Embedding Generation**: Nomic-embed-text is optimized for speed
 - **Chat Model**: Smaller models (phi3) respond faster but may be less accurate
 
