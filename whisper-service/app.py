@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # Load Whisper model at startup
 print("Loading Whisper model...")
-model = whisper.load_model("base")
+model = whisper.load_model("large-v3")
 print("Whisper model loaded successfully")
 
 @app.route('/health', methods=['GET'])

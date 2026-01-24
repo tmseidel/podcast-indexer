@@ -244,7 +244,7 @@ npm run build
 ## Troubleshooting
 
 ### Whisper Service Fails to Start
-- Ensure you have enough disk space for the model download
+- Ensure you have enough disk space for the model download (large-v3 download is several GB and uses ~10 GB VRAM)
 - Check logs: `docker logs podcast-whisper`
 
 ### Ollama Models Not Found
