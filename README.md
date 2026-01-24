@@ -245,6 +245,7 @@ npm run build
 
 ### Whisper Service Fails to Start
 - Ensure you have enough disk space for the model download (large-v3 download is several GB and uses ~10 GB VRAM)
+- Set `WHISPER_MODEL` in `docker-compose` or your environment to use a smaller model if needed
 - Check logs: `docker logs podcast-whisper`
 
 ### Ollama Models Not Found
@@ -283,7 +284,7 @@ docker-compose down -v
 
 ## Performance Considerations
 
-- **Transcription**: Whisper large-v3 is the default for highest accuracy
+- **Transcription**: Whisper large-v3 is the default for highest accuracy (override with `WHISPER_MODEL`)
   - Use `turbo` for faster transcription with slightly lower accuracy
   - Use `small` or `medium` for lower resource usage
 - **Embedding Generation**: Nomic-embed-text is optimized for speed

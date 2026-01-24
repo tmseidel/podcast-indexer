@@ -60,6 +60,8 @@ services:
       context: ./whisper-service
       dockerfile: Dockerfile
     container_name: podcast-whisper
+    environment:
+      WHISPER_MODEL: ${WHISPER_MODEL:-large-v3}
     ports:
       - "8000:8000"
     healthcheck:
