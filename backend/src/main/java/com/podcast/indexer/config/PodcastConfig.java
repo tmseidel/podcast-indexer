@@ -12,6 +12,7 @@ public class PodcastConfig {
     private Whisper whisper = new Whisper();
     private Ollama ollama = new Ollama();
     private Vector vector = new Vector();
+    private Jobs jobs = new Jobs();
     
     @Data
     public static class Audio {
@@ -63,6 +64,24 @@ public class PodcastConfig {
         @Data
         public static class Search {
             private int topK = 5;
+        }
+    }
+
+    @Data
+    public static class Jobs {
+        private Worker worker = new Worker();
+        private Queue queue = new Queue();
+
+        @Data
+        public static class Worker {
+            private int parallelism = 1;
+            private long pollDelayMs = 1000;
+            private long dequeueTimeoutSeconds = 5;
+        }
+
+        @Data
+        public static class Queue {
+            private int statusLimit = 50;
         }
     }
 }

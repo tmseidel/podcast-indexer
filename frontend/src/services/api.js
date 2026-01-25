@@ -24,4 +24,8 @@ export const qaApi = {
     api.post('/qa/ask', { podcastId, question }),
 };
 
+export const jobsApi = {
+  getStatus: (limit) => api.get('/jobs/status', { params: limit ? { limit } : {} }),
+};
+
 export default api;

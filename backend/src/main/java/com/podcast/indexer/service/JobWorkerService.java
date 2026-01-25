@@ -1,9 +1,20 @@
 package com.podcast.indexer.service;
 
+import com.podcast.indexer.config.PodcastConfig;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -15,15 +26,61 @@ public class JobWorkerService {
     private final AudioService audioService;
     private final WhisperService whisperService;
     private final IndexingService indexingService;
+    private final PodcastConfig config;
+
+    private ExecutorService executorService;
+    private final ConcurrentMap<String, ActiveJob> activeJobs = new ConcurrentHashMap<>();
+
+    private static final int MAX_PARALLELISM = 16;
     
-    @Scheduled(fixedDelay = 1000) // Check every second
-    public void processJobs() {
-        JobQueueService.Job job = jobQueueService.dequeueJob(5);
-        
-        if (job != null) {
+    @PostConstruct
+    public void startWorkers() {
+        int parallelism = Math.max(1, Math.min(config.getJobs().getWorker().getParallelism(), MAX_PARALLELISM));
+        executorService = Executors.newFixedThreadPool(parallelism);
+        for (int i = 0; i < parallelism; i++) {
+            executorService.submit(this::runWorkerLoop);
+        }
+    }
+
+    @PreDestroy
+    public void stopWorkers() {
+        if (executorService != null) {
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    public JobWorkerStatus getStatus(int queuePreviewLimit) {
+        JobQueueService.QueueSnapshot snapshot = jobQueueService.getQueueSnapshot(queuePreviewLimit);
+        return JobWorkerStatus.builder()
+                .parallelism(config.getJobs().getWorker().getParallelism())
+                .activeJobCount(activeJobs.size())
+                .activeJobs(new ArrayList<>(activeJobs.values()))
+                .queueSize(snapshot.getTotalSize())
+                .queuedJobs(snapshot.getJobs())
+                .lastUpdated(LocalDateTime.now())
+                .build();
+    }
+
+    private void runWorkerLoop() {
+        long pollDelay = config.getJobs().getWorker().getPollDelayMs();
+        long dequeueTimeoutSeconds = config.getJobs().getWorker().getDequeueTimeoutSeconds();
+        while (!Thread.currentThread().isInterrupted()) {
+            JobQueueService.Job job = jobQueueService.dequeueJob(dequeueTimeoutSeconds);
+            if (job == null) {
+                sleep(pollDelay);
+                continue;
+            }
+            job.ensureJobId();
+            activeJobs.put(job.getJobId(), ActiveJob.from(job));
             try {
                 log.info("Processing job: {}", job);
-                
                 switch (job.getType()) {
                     case SYNC_EPISODES:
                         rssFeedService.syncEpisodes(job.getResourceId());
@@ -40,12 +97,54 @@ public class JobWorkerService {
                     default:
                         log.warn("Unknown job type: {}", job.getType());
                 }
-                
                 log.info("Completed job: {}", job);
             } catch (Exception e) {
                 log.error("Failed to process job: {}", job, e);
                 // In production, you might want to implement retry logic or dead letter queue
+            } finally {
+                activeJobs.remove(job.getJobId());
             }
+        }
+    }
+
+    private void sleep(long delayMs) {
+        try {
+            Thread.sleep(delayMs);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    @lombok.Data
+    @lombok.Builder
+    public static class JobWorkerStatus {
+        private int parallelism;
+        private int activeJobCount;
+        private long queueSize;
+        private List<JobQueueService.Job> queuedJobs;
+        private List<ActiveJob> activeJobs;
+        private LocalDateTime lastUpdated;
+    }
+
+    @lombok.Data
+    @lombok.Builder
+    public static class ActiveJob {
+        private String jobId;
+        private JobQueueService.JobType type;
+        private Long resourceId;
+        private Integer partIndex;
+        private String audioFilePath;
+        private LocalDateTime startedAt;
+
+        public static ActiveJob from(JobQueueService.Job job) {
+            return ActiveJob.builder()
+                    .jobId(job.getJobId())
+                    .type(job.getType())
+                    .resourceId(job.getResourceId())
+                    .partIndex(job.getPartIndex())
+                    .audioFilePath(job.getAudioFilePath())
+                    .startedAt(LocalDateTime.now())
+                    .build();
         }
     }
 }

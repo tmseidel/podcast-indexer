@@ -127,6 +127,10 @@ You can monitor progress on the podcast detail page.
    - Text snippets
    - Links to listen at specific timestamps
 
+### Monitoring Job Queue
+
+Visit the **Job Queue** page at http://localhost:3000/jobs to see worker activity, queued jobs, and the configured parallelism.
+
 ## Configuration
 
 ### Environment Variables
@@ -148,6 +152,14 @@ OLLAMA_CHAT_MODEL: llama2  # Chat model for Q&A
 #### Vector Search
 ```yaml
 VECTOR_SEARCH_TOP_K: 5  # Number of relevant chunks to retrieve
+```
+
+#### Job Worker
+```yaml
+JOB_WORKER_PARALLELISM: 1  # Number of worker threads per instance
+JOB_WORKER_POLL_DELAY_MS: 1000  # Delay between empty queue polls
+JOB_WORKER_DEQUEUE_TIMEOUT_SECONDS: 5  # Blocking pop timeout for worker threads
+JOB_QUEUE_STATUS_LIMIT: 50  # Max queued jobs returned in status view
 ```
 
 ### Changing Models
