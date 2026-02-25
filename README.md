@@ -150,6 +150,11 @@ OLLAMA_CHAT_MODEL: llama2  # Chat model for Q&A
 VECTOR_SEARCH_TOP_K: 5  # Number of relevant chunks to retrieve
 ```
 
+#### Q&A Cache
+```yaml
+QA_CACHE_TTL_MINUTES: 60  # Cache Ollama answers to speed repeat questions
+```
+
 ### Changing Models
 
 To use a different chat model:
