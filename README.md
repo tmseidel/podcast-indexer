@@ -181,6 +181,22 @@ Long episodes (exceeding `MAX_MINUTES_BEFORE_SPLIT`) are automatically split int
 
 ## API Endpoints
 
+### Health
+
+- `GET /actuator/health` - Application health status
+
+  Example response:
+  ```json
+  {
+    "status": "UP",
+    "components": {
+      "db": { "status": "UP" },
+      "diskSpace": { "status": "UP" },
+      "redis": { "status": "UP" }
+    }
+  }
+  ```
+
 ### Podcasts
 
 - `GET /api/podcasts` - List all podcasts
