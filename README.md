@@ -204,6 +204,10 @@ Long episodes (exceeding `MAX_MINUTES_BEFORE_SPLIT`) are automatically split int
   }
   ```
 
+### Actuator
+
+- `GET /actuator/health` - Application health status
+
 ## Development
 
 ### Running Locally (Without Docker)
