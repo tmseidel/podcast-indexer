@@ -88,6 +88,7 @@ Alternative chat models you can use:
 Open your browser and navigate to:
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8080
+- **Health Endpoint**: http://localhost:8080/myHealth/health
 
 ## Usage
 
